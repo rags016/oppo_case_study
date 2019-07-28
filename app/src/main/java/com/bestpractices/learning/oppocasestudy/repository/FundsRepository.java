@@ -8,27 +8,30 @@ import android.widget.Toast;
 import androidx.lifecycle.LiveData;
 
 import com.bestpractices.learning.oppocasestudy.models.Funds;
+import com.bestpractices.learning.oppocasestudy.models.FundsModel;
 
 import java.util.List;
 
 public class FundsRepository {
-    private static final String  TAG= "atul";
+    private static final String  TAG= FundsRepository.class.getSimpleName();
     private FundsDao fundsDao;
-    private LiveData<List<Funds>> mAllFunds;
+    private static List<Funds> mAllFunds;
+    private Funds funds;
 
     public FundsRepository(Application application) {
         FundsDatabase db = FundsDatabase.getDatabase(application);
         fundsDao =  db.fundsDao();
-        mAllFunds = fundsDao.getAllFundsFromDb();
-        Log.d(TAG, "FundsRepository: " + mAllFunds.getValue());
-
+        setmAllFunds();
     }
 
-    public LiveData<List<Funds>> getmAllFunds(){
+    public void setmAllFunds(){
+        new getFundsAsynctask(fundsDao).execute();
+    }
+
+    public List<Funds> getmAllFunds(){
         return mAllFunds;
     }
     public void insert(Funds fundsModel){
-        Log.d(TAG, "insert: ");
         new insertAsyncTask(fundsDao).execute(fundsModel);
 
     }
@@ -37,14 +40,12 @@ public class FundsRepository {
 
         private FundsDao mAsyncDao;
         public insertAsyncTask(FundsDao fundsDao) {
-            Log.d(TAG, "insertAsyncTask: " + "constructor");
             mAsyncDao = fundsDao;
         }
 
         @Override
         protected Void doInBackground(Funds... fundsModels) {
             mAsyncDao.insert(fundsModels[0]);
-            Log.d(TAG, "doInBackground: "  + "Thread Name: " + Thread.currentThread().getId());
             return null;
         }
 
@@ -52,7 +53,26 @@ public class FundsRepository {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            Log.d(TAG, "FundsRepository: " + "thread: " + Thread.currentThread().getId());
+        }
+    }
+
+    public static class getFundsAsynctask extends AsyncTask<Void,List<Funds>,List<Funds>>{
+
+        FundsDao fundsDao;
+        public getFundsAsynctask(FundsDao fundsDao) {
+            this.fundsDao = fundsDao;
+        }
+
+
+        @Override
+        protected List<Funds> doInBackground(Void... voids) {
+            return fundsDao.getAllFundsFromDb();
+        }
+
+        @Override
+        protected void onPostExecute(List<Funds> funds) {
+            super.onPostExecute(funds);
+            mAllFunds = funds;
         }
     }
 }

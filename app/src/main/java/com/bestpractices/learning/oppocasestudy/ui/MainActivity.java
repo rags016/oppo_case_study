@@ -1,5 +1,6 @@
 package com.bestpractices.learning.oppocasestudy.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,7 +23,7 @@ import com.bestpractices.learning.oppocasestudy.viewmodels.FundsViewModel;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements RestApiFactory.OnNotifyListener {
-    public static final String TAG = "atul";
+    public static final String TAG = MainActivity.class.getSimpleName();
     private FundsAdapter adapter;
     private FundsViewModel fundsViewModel;
     private ActivityMainBinding binding;
@@ -30,12 +31,11 @@ public class MainActivity extends AppCompatActivity implements RestApiFactory.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this,R.layout.activity_main);
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         init();
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        Util.showProgressDialog(this);
-
+        if (savedInstanceState == null || Util.isShowing())
+            Util.showProgressDialog(this);
     }
 
     private void init() {
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements RestApiFactory.On
     }
 
     private void generateDataList() {
-        adapter = new FundsAdapter(fundsViewModel.getFundsData().getValue(),this);
+        adapter = new FundsAdapter(fundsViewModel.getFundsData().getValue(), this);
         RecyclerView.LayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.recyclerView.setLayoutManager(linearLayoutManager);
         binding.recyclerView.setHasFixedSize(true);

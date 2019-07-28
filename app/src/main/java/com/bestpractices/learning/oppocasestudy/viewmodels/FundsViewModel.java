@@ -17,7 +17,7 @@ import com.bestpractices.learning.oppocasestudy.utils.Util;
 import java.util.List;
 
 public class FundsViewModel extends AndroidViewModel{
-    public static final String TAG ="atul";
+    public static final String TAG = FundsViewModel.class.getSimpleName();
     private MutableLiveData<List<Funds>> funds;
     private RestApiFactory call;
     private FundsRepository fundsRepository;
@@ -32,7 +32,6 @@ public class FundsViewModel extends AndroidViewModel{
 
 
     public void init() {
-        Log.d(TAG, "init: ");
         if (funds != null) {
             return;
         }
@@ -40,11 +39,9 @@ public class FundsViewModel extends AndroidViewModel{
         call.getFundsNetworkData();
         
         if(Util.getPreferences()){
-            Log.d(TAG, "init: fromDb");
             funds = call.getFundFromDb();
 
         }else {
-            Log.d(TAG, "init: fromNetwork");
             funds = call.getAllFunds();
         }
 

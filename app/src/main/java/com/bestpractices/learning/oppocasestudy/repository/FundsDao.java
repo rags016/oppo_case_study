@@ -17,5 +17,5 @@ public interface FundsDao {
     void insert(Funds funds);
 
     @Query("SELECT * From funds_table")
-    LiveData<List<Funds>> getAllFundsFromDb();
+    List<Funds> getAllFundsFromDb();
 }

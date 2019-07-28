@@ -27,7 +27,7 @@ import java.util.List;
 import static java.lang.Integer.valueOf;
 
 public class FundsAdapter extends RecyclerView.Adapter<FundsAdapter.FundsViewHolder> {
-    public static final String TAG = "atul";
+    public static final String TAG = FundsAdapter.class.getSimpleName();
     private List<Funds> funds;
     private Context context;
     public FundsAdapter(List<Funds> fundsModel, Context mContext) {

@@ -20,7 +20,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RestApiFactory {
-    private static final String TAG = "atul";
+    private static final String TAG = RestApiFactory.class.getSimpleName();
     private FundsModel fundsData;
     private ArrayList<Funds> list = new ArrayList<>();
     private OnNotifyListener listener;
@@ -37,35 +37,30 @@ public class RestApiFactory {
     private RestApiFactory() {
     }
 
-    public static RestApiFactory getInstance(){
-        if(instance==null){
+    public static RestApiFactory getInstance() {
+        if (instance == null) {
             instance = new RestApiFactory();
         }
         return instance;
     }
 
-    public void setApplicationContext(Application application){
+    public void setApplicationContext(Application application) {
         repository = new FundsRepository(application);
         context = application;
         Util.setContext(context);
     }
 
-    public void getFundsNetworkData(){
+    public void getFundsNetworkData() {
         RestApi networkCallService = RestApiBuilder.getInstance().buildConnection();
 
         Call<FundsModel> call = networkCallService.getAllFunds();
         call.enqueue(new Callback<FundsModel>() {
             @Override
             public void onResponse(Call<FundsModel> call, Response<FundsModel> response) {
-                Log.d(TAG, "onResponse: ");
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
                     setNetworkData(response.body());
                     listener.onNotify();
-                }else{
-                    Log.d(TAG, "onResponse: " + " Not success" );
                 }
-
-
             }
 
             @Override
@@ -75,44 +70,39 @@ public class RestApiFactory {
         });
     }
 
-    public void setNetworkData(FundsModel fundsModel){
+    public void setNetworkData(FundsModel fundsModel) {
         fundsData = fundsModel;
         Funds funds = fundsModel.getData().get(0);
-        Log.d(TAG, "setData: " +fundsModel);
         list.clear();
-        for(int i=0;i< fundsModel.getData().size();i++){
+        for (int i = 0; i < fundsModel.getData().size(); i++) {
             list.add(fundsModel.getData().get(i));
-        }
-        if(Util.getPreferences()== false){
-            repository.insert(funds);
-            Util.setPreferences(true);
-        }
+            if (Util.getPreferences()) {
+                repository.insert(fundsModel.getData().get(i));
+            }
 
+        }
+        Util.setPreferences(true);
 
     }
 
 
-    public MutableLiveData<List<Funds>> getAllFunds(){
+    public MutableLiveData<List<Funds>> getAllFunds() {
 
-        MutableLiveData<List<Funds>> dataSet = new MutableLiveData<>();
-        Log.d(TAG, "getAllFunds: " + list.size());
-        dataSet.setValue(list);
-
-        return dataSet;
-    }
-
-    public MutableLiveData<List<Funds>> getFundFromDb(){
-        LiveData<List<Funds>> dbFundsModel = repository.getmAllFunds();
-        Log.d(TAG, "getFundFromDb: " + dbFundsModel.getValue());
-//        List<Funds> dbFundsList = dbFundsModel.getValue().get(0).getData();
         MutableLiveData<List<Funds>> dataSet = new MutableLiveData<>();
         dataSet.setValue(list);
 
         return dataSet;
     }
 
+    public MutableLiveData<List<Funds>> getFundFromDb() {
+        List<Funds> dbFunds = repository.getmAllFunds();
+        MutableLiveData<List<Funds>> dataSet = new MutableLiveData<>();
+        dataSet.setValue(dbFunds);
+        return dataSet;
+    }
 
-    public interface OnNotifyListener{
+
+    public interface OnNotifyListener {
 
         void onNotify();
     }
